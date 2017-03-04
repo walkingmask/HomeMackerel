@@ -120,7 +120,9 @@ iso ファイルについては [公式サイト](https://www.ubuntu.com/) か�
 ### ネットワークの基本設定
 IP 固定設定などを設定します。
 
-```lshw -short -class network```
+```
+lshw -short -class network
+```
 
 で、ネットワークインターフェースを確認します。enpXxx のようなものが有線 LAN の ID であるはずなので、これをメモしておいて `/etc/network/interfaces` を編集します。
 
@@ -210,7 +212,9 @@ sudo apt -y install ubuntu-drivers-common
 
 インストールが完了したら、再起動 (`sudo reboot now`) して、下記のコマンドでグラフィックボードとドライバが正常に動いているか確認します。
 
-```nvidia-smi```
+```
+nvidia-smi
+```
 
 こんな感じで出力されていればうまくいっていると思います。
 
@@ -264,7 +268,9 @@ sudo apt -y install docker-engine
 
 Docker は、次のコマンドで動作確認ができます。
 
-```sudo docker run hello-world```
+```
+sudo docker run hello-world
+```
 
 この時、イメージやコンテナが生成されると思うので、気になる方は Docker コマンドを調べて削除するといいでしょう。
 
@@ -556,7 +562,9 @@ DDNS の登録が済んだら、ルータのポートマッピングの設定を
 
 これで、ルータ側の設定はできたと思うので、
 
-```ssh sshuser@ieserver_no_subdomain.dip.jp -i ~/.ssh/ssh_rsa.pub```
+```
+ssh sshuser@ieserver_no_subdomain.dip.jp -i ~/.ssh/ssh_rsa.pub
+```
 
 といった具合で SSH して、接続できれば成功です。この時、接続できない場合もあると思いますが、頑張って解決してください！
 
@@ -697,7 +705,9 @@ sudo sysctl -p
 ### nmap でポートの状態を確認
 ufw や ルータの設定ができているのか確認するために nmap を使って調べていました。netcat でもできたかもしれません。
 
-```nmap -Pn -p 56789 ieserver_no_subdomain.dip.jp```
+```
+nmap -Pn -p 56789 ieserver_no_subdomain.dip.jp
+```
 
 #### 参考ページ
 - [nmapコマンドで覚えておきたい使い方11個](https://orebibou.com/2015/06/nmapコマンドで覚えておきたい使い方11個/)
@@ -733,7 +743,7 @@ set -eu
 /usr/bin/rsync -a --delete /home/sshuser/Workspace/ /mnt/hdd1/backup/sshuser/Workspace
 exit 0
 EOF'
-sudo chmod +x /etc/cron.hourly/tens-backup
+sudo chmod +x /etc/cron.hourly/workspace-backup
 sudo /etc/cron.hourly/workspace-backup
 ```
 
@@ -755,7 +765,9 @@ DDNS の自動更新が必要なため、常時起動を余儀なくされたわ
 
 あとは、クライアント PC で
 
-`wakeonlan -i ieserver_no_subdomain.dip.jp 12:23:56:78:90:ab`
+```
+wakeonlan -i ieserver_no_subdomain.dip.jp 12:23:56:78:90:ab
+```
 
 のように鯖の NIC の MAC アドレス宛にマジックパケットを送り、鯖が起動したら成功です。
 
