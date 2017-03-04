@@ -1,0 +1,40 @@
+#!/bin/sh
+
+PATH=/usr/bin:/bin:
+
+# Update
+freshclam >/dev/null 2>&1
+
+# Except setup
+execlist=/root/clamscan.exclude
+if [ -s $execlist ]; then
+  for i in `cat $execlist`
+  do
+    if [ $(echo "$i"|grep \/$) ]; then
+      i=`echo $i|sed -e 's/^\([^ ]*\)\/$/\1/p' -e d`
+      execopt="${execopt} --exclude-dir=^$i"
+    else
+      execopt="${execopt} --exclude=^$i"
+    fi
+  done
+fi
+
+# Scan
+SCANTMP=`mktemp`
+clamscan \
+${execopt} \
+--exclude-dir=^/sys \
+--exclude-dir=^/dev \
+--exclude-dir=^/proc \
+--remove \
+--recursive \
+/ >$SCANTMP 2>&1
+
+# Report with mail when virus found
+if [ ! -z "$(grep FOUND$ $SCANTMP)" ]; then
+  grep FOUND$ $SCANTMP | mail -s "Virus Found in `hostname`" root
+fi
+
+rm -f $SCANTMP
+
+exit 0

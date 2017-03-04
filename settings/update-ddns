@@ -1,0 +1,54 @@
+#!/bin/bash
+set -eu
+
+CURRENT_IP_FILE='/etc/ddns/current-ip'
+ACCOUNT_INFO_FILE='/etc/ddns/account-info'
+LOG_FILE='/var/log/ddns/update.log'
+
+REMOTE_ADDR_CHK='http://ieserver.net/ipcheck.shtml'
+DDNS_UPDATE='https://ieserver.net/cgi-bin/dip.cgi'
+
+if [ ! -f $CURRENT_IP_FILE ]; then
+    CURRENT_IP='0.0.0.0'
+else
+    CURRENT_IP=`cat $CURRENT_IP_FILE`
+fi
+
+NEW_IP='0.0.0.0'
+NEW_IP="`wget -q -O - $REMOTE_ADDR_CHK`"
+TIME=`date "+%Y/%m/%d %a %H:%M:%S"`
+
+if [ "$NEW_IP" != "0.0.0.0" ] && [ "$CURRENT_IP" != "$NEW_IP" ]; then
+
+    cat $ACCOUNT_INFO_FILE | while read line; do
+
+        if [ "$line" = "" ]; then
+            break
+        fi
+
+        set -f
+        set -- $line
+        ACCOUNT=$1
+        DOMAIN=$2
+        PASSWORD=$3
+        if [ "$ACCOUNT" != "" ] && [ "$DOMAIN" != "" ] && [ "$PASSWORD" != "" ]; then
+            STATUS=`wget -q -O - "$DDNS_UPDATE?username=$ACCOUNT&domain=$DOMAIN&password=$PASSWORD&updatehost=1"`
+        fi
+        set +f
+
+        if [ "$STATUS" = "" ]; then
+            continue
+        fi
+
+        if [[ "$STATUS" =~ "$NEW_IP" ]]; then
+            echo -n "$NEW_IP" >$CURRENT_IP_FILE
+            echo "$TIME $ACCOUNT.$DOMAIN Updated $CURRENT_IP to $NEW_IP" >>$LOG_FILE
+        else
+            echo "$TIME $ACCOUNT.$DOMAIN Update aborted $CURRENT_IP to $NEW_IP" >>$LOG_FILE
+        fi
+    done
+else
+    echo "$TIME There is no update. current IP is $CURRENT_IP" >>$LOG_FILE
+fi
+
+exit 0
