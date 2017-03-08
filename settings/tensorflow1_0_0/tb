@@ -1,0 +1,20 @@
+#!/bin/bash
+set -eu
+
+path="/home/DOCKERUSER/Workspace"
+if [ $# -ne 2 ]; then
+  echo "usage: tb workdir logname" 1>&2
+  exit 1
+fi
+workd=$1
+if [ ! -d "$path/$workd" ]; then
+  echo "error. there is no $workd" 1>&2
+  exit 1
+fi
+logn=$2
+if [ ! -d "$path/$workd/$logn" ]; then
+  echo "error. there is no $logn" 1>&2
+  exit 1
+fi
+/home/DOCKERUSER/.pyenv/versions/anaconda3-4.3.0/bin/tensorboard --logdir=$path/$workd/$logn
+exit 0

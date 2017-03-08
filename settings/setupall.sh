@@ -110,8 +110,20 @@ $SSHUSER    ALL=(ALL) NOPASSWD: /usr/bin/docker start $DOCKERUSER
 $SSHUSER    ALL=(ALL) NOPASSWD: /usr/bin/docker restart $DOCKERUSER
 $SSHUSER    ALL=(ALL) NOPASSWD: /usr/bin/docker stop $DOCKERUSER
 $SSHUSER    ALL=(ALL) NOPASSWD: /usr/bin/docker logs -ft $DOCKERUSER
+$SSHUSER    ALL=(ALL) NOPASSWD: /sbin/shutdown now
+$SSHUSER    ALL=(ALL) NOPASSWD: /sbin/reboot now
 EOF'
 chmod 0440 /etc/sudoers.d/$SSHUSER
+sh -c 'cat << EOF >/etc/sudoers.d/$WORKUSER
+$WORKUSER    ALL=(ALL) NOPASSWD: /usr/bin/docker ps -a
+$WORKUSER    ALL=(ALL) NOPASSWD: /usr/bin/docker start $DOCKERUSER
+$WORKUSER    ALL=(ALL) NOPASSWD: /usr/bin/docker restart $DOCKERUSER
+$WORKUSER    ALL=(ALL) NOPASSWD: /usr/bin/docker stop $DOCKERUSER
+$WORKUSER    ALL=(ALL) NOPASSWD: /usr/bin/docker logs -ft $DOCKERUSER
+$WORKUSER    ALL=(ALL) NOPASSWD: /sbin/shutdown now
+$WORKUSER    ALL=(ALL) NOPASSWD: /sbin/reboot now
+EOF'
+chmod 0440 /etc/sudoers.d/$WORKUSER
 # update
 systemctl restart sshd
 ufw enable
